@@ -2,8 +2,6 @@
 
 > KVY Tech Take-Home Submission — Tran Xuan Quang
 
-**Live demo:** `https://YOUR_VERCEL_URL` · **API:** `https://YOUR_RAILWAY_URL`
-
 ---
 
 ## What I Built
@@ -80,36 +78,23 @@ cp apps/backend/.env.example apps/backend/.env
 # Edit apps/backend/.env — set DATABASE_URL and REDIS_HOST at minimum
 
 # Frontend
-cp apps/frontend/.env.example apps/frontend/.env.local
-# NEXT_PUBLIC_API_URL defaults to http://localhost:4000 — no change needed for local
-```
-
-### 3. Database setup
-
-```bash
-cd apps/backend
-
-# Create the uploads directory
-mkdir -p uploads
-
-# TypeORM will auto-sync schema in development (synchronize: true)
-# Seed test users
-npm run seed
+cp apps/frontend/.env.example
+# NEXT_PUBLIC_API_URL
 ```
 
 ### 4. Start backend
 
 ```bash
 cd apps/backend
-npm run start:dev
-# → http://localhost:4000
+yarn start:dev
+# → http://localhost:8080
 ```
 
 ### 5. Start frontend
 
 ```bash
 cd apps/frontend
-npm run dev
+yarn run dev
 # → http://localhost:3000
 ```
 
@@ -140,21 +125,6 @@ To force an inconclusive result every time for testing, edit `apps/backend/src/m
 const WEIGHTS = { verified: 0, rejected: 0, inconclusive: 1 };
 ```
 
----
-
-## Running Tests
-
-```bash
-cd apps/backend
-npm test
-# or with coverage
-npm run test:cov
-```
-
-Tests are in `src/verification/verification.processor.spec.ts` — covers the core state machine logic.
-
----
-
 ## Deployment
 
 ### Stack used
@@ -164,65 +134,6 @@ Tests are in `src/verification/verification.processor.spec.ts` — covers the co
 | Frontend             | Vercel  | Free             |
 | Backend + PostgreSQL | Railway | ~$5 credit/month |
 | Redis                | Upstash | Free tier        |
-
-### Deploy backend (Railway)
-
-1. Create a new Railway project
-2. Add a PostgreSQL plugin → copy `DATABASE_URL`
-3. Deploy backend repo (point to `apps/backend`)
-4. Add environment variables from `.env.example`
-5. For Redis: create an [Upstash](https://upstash.com) database → copy host/port/password
-
-### Deploy frontend (Vercel)
-
-```bash
-cd apps/frontend
-npx vercel --prod
-# Set NEXT_PUBLIC_API_URL to your Railway backend URL
-```
-
-### After deploy
-
-```bash
-# Run seed against production DB
-DATABASE_URL=<your-production-url> NODE_ENV=production npx ts-node src/database/seed.ts
-```
-
----
-
-## Project Structure
-
-```
-doc-verification/
-├── DESIGN.md                          # Architecture & design decisions
-├── README.md                          # This file
-├── .env.example                       # Combined env reference
-└── apps/
-    ├── backend/                       # NestJS API
-    │   └── src/
-    │       ├── auth/                  # JWT, guards, role decorator
-    │       ├── document/              # Upload, status, admin list
-    │       ├── verification/          # BullMQ processor (state machine)
-    │       │   └── *.spec.ts          # Unit tests
-    │       ├── notification/          # Email BullMQ processor
-    │       ├── audit/                 # Append-only event log
-    │       ├── mock/                  # Simulated external service
-    │       ├── common/filters/        # Global exception filter
-    │       └── database/
-    │           ├── entities/          # TypeORM entities
-    │           └── seed.ts            # Test user seeding
-    └── frontend/                      # Next.js App Router
-        └── src/
-            ├── app/
-            │   ├── login/page.tsx     # Shared login
-            │   ├── seller/page.tsx    # Seller upload + status
-            │   └── admin/page.tsx     # Admin queue + review + audit
-            └── lib/
-                ├── api.ts             # Axios client with JWT interceptor
-                └── auth-context.tsx   # Auth state + login/logout
-```
-
----
 
 ## API Reference (key endpoints)
 
